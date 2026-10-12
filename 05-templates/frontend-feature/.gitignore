@@ -1,0 +1,6 @@
+# Written by `next typegen` / `tsc` / `storybook build` inside this workspace; never committed.
+node_modules/
+.next/
+next-env.d.ts
+*.tsbuildinfo
+storybook-static/

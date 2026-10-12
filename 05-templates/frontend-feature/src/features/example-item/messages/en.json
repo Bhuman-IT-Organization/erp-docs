@@ -1,0 +1,24 @@
+{
+  "example-item": {
+    "list_title": "Example items",
+    "new_title": "New example item",
+    "record_title": "Example item",
+    "noun_example_item": "example item",
+    "noun_example_items": "example items",
+    "section_details": "Details",
+    "id": "ID",
+    "name": "Name",
+    "label": "Label",
+    "created_at": "Created",
+    "empty_heading": "No example items yet",
+    "empty_body": "Create the first one and it appears here.",
+    "no_match_heading": "No example items match “{query}”",
+    "no_match_body": "Check the spelling or search for fewer words.",
+    "enter_name": "Enter a name.",
+    "saved_toast": "Example item saved",
+    "name_too_long": "Keep the name to {max} characters or fewer.",
+    "errors": {
+      "ERP-CORE-0004": "This example item no longer exists. It may have been removed."
+    }
+  }
+}

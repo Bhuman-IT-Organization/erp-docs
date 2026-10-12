@@ -1,0 +1,121 @@
+{
+  "src/shared/config/env.schema.ts": {
+    "jsdoc/require-jsdoc": {
+      "count": 1
+    },
+    "max-depth": {
+      "count": 1
+    }
+  },
+  "src/shared/errors/app-error.ts": {
+    "jsdoc/require-jsdoc": {
+      "count": 2
+    }
+  },
+  "src/shared/errors/error-codes.ts": {
+    "jsdoc/require-jsdoc": {
+      "count": 1
+    }
+  },
+  "src/shared/errors/problem-details.filter.ts": {
+    "complexity": {
+      "count": 1
+    },
+    "jsdoc/require-jsdoc": {
+      "count": 1
+    }
+  },
+  "src/shared/events/domain-event.publisher.ts": {
+    "jsdoc/require-jsdoc": {
+      "count": 1
+    },
+    "max-depth": {
+      "count": 1
+    },
+    "no-await-in-loop": {
+      "count": 1
+    }
+  },
+  "src/shared/http/auth/access-token-verifier.ts": {
+    "jsdoc/require-jsdoc": {
+      "count": 2
+    }
+  },
+  "src/shared/http/csv.ts": {
+    "jsdoc/require-jsdoc": {
+      "count": 1
+    }
+  },
+  "src/shared/http/decorators/scope.decorator.ts": {
+    "jsdoc/require-jsdoc": {
+      "count": 1
+    }
+  },
+  "src/shared/http/guards/jwt-auth.guard.ts": {
+    "jsdoc/require-jsdoc": {
+      "count": 1
+    }
+  },
+  "src/shared/http/guards/permission.guard.ts": {
+    "complexity": {
+      "count": 1
+    },
+    "jsdoc/require-jsdoc": {
+      "count": 1
+    },
+    "max-depth": {
+      "count": 1
+    },
+    "no-await-in-loop": {
+      "count": 2
+    }
+  },
+  "src/shared/http/keyset.ts": {
+    "jsdoc/require-jsdoc": {
+      "count": 1
+    }
+  },
+  "src/shared/http/openapi.ts": {
+    "complexity": {
+      "count": 1
+    },
+    "erp/no-nested-loops": {
+      "count": 2
+    },
+    "jsdoc/require-jsdoc": {
+      "count": 2
+    },
+    "max-depth": {
+      "count": 1
+    },
+    "no-nested-ternary": {
+      "count": 1
+    }
+  },
+  "src/shared/http/pagination.ts": {
+    "erp/no-nested-loops": {
+      "count": 3
+    },
+    "jsdoc/require-jsdoc": {
+      "count": 4
+    },
+    "max-depth": {
+      "count": 3
+    }
+  },
+  "src/shared/http/request-id.ts": {
+    "jsdoc/require-jsdoc": {
+      "count": 1
+    }
+  },
+  "src/shared/logger/logger.service.ts": {
+    "jsdoc/require-jsdoc": {
+      "count": 3
+    }
+  },
+  "src/shared/logger/request-context.ts": {
+    "jsdoc/require-jsdoc": {
+      "count": 4
+    }
+  }
+}

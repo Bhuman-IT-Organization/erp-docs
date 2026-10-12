@@ -1,0 +1,5 @@
+{
+  "extends": "@erp/configs/tsconfig/node.json",
+  "include": ["src/**/*.ts"],
+  "exclude": ["src/**/*.int.spec.ts"]
+}
