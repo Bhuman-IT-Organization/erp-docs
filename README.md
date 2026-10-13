@@ -4,7 +4,7 @@ Written for a developer joining this project. macOS and Windows; Linux is the ma
 
 ## 0. What this is
 
-The client runs a customised **Perfex CRM (PHP, CodeIgniter 3)**. It is being replaced module by module with **NestJS (`erp-api`)** and **Next.js (`erp-web`)** behind one Nginx, while the old system keeps running: the *strangler fig*. Nginx decides who answers each URL. A page that has been migrated is served by Node; everything else falls through to Perfex.
+Our ERP product is built on **Perfex CRM (PHP, CodeIgniter 3)**, a product the company bought under a one-time-purchase licence and has customised heavily. It is being replaced module by module with **NestJS (`erp-api`)** and **Next.js (`erp-web`)** behind one Nginx, while the old system keeps running: the *strangler fig*. Nginx decides who answers each URL. A page that has been migrated is served by Node; everything else falls through to Perfex.
 
 In this copy, Node serves:
 
@@ -57,7 +57,7 @@ erp/
   erp-api/        NestJS 12 + Fastify modular monolith
   erp-web/        Next.js 16 App Router + shadcn, Storybook
   erp-infra/      Nginx, Compose, env templates, the erp_sso Perfex module, local-up, legacy-local
-  erp-legacy/     the client's Perfex application
+  erp-legacy/     our customised Perfex application
     public_html/
     cubepltech_cube.sql   the database export the local stack imports
   erp-docs/       this guide, the coding rules, the architecture and the module templates
@@ -65,12 +65,12 @@ erp/
 
 ## 3. The rules about `erp-legacy/`: read twice
 
-That folder is a copy of the client's system. You get it from GitHub with the rest, but it is not yours to change. The production database password and encryption key have been removed from `application/config/app-config.php`; the local stack generates its own.
+That folder is a copy of our customised Perfex system. You get it from GitHub with the rest, but it is not yours to change. The production database password and encryption key have been removed from `application/config/app-config.php`; the local stack generates its own.
 
 - It is **read-only**. You read it to learn; you never edit it, and you never commit to it. Nothing you build lives in it (the one module deployed into Perfex lives in `erp-infra/legacy/`).
 - **Never paste its contents anywhere**: not into a ticket, a screenshot, a chat or an AI prompt. Treat the `.sql` file as if it held real customer data.
 - Passwords in the dump are not yours to know or spread. Set your own on a staff row (step 5).
-- Never contact the client's server.
+- Never connect to the live (production) Perfex server or its database. You only ever work on your local copy at `localhost`.
 
 If you are unsure whether something counts as a secret, it does.
 
@@ -96,7 +96,7 @@ It imports the dump into MySQL, renders the env files (and a signing key private
 
 ```sh
 cd erp-infra/legacy-local
-node reset-password.mjs <a staff e-mail from the dump> "<your own password>"
+node reset-password.mjs demo@gmail.com "<your own password>"
 ```
 
 Open **<http://localhost:8088/login>** and sign in. You land on the Perfex dashboard at `/admin/` with no second login: the Next.js login opened a PHP session. From the sidebar, **Setup** holds the Node screens listed in section 0.
@@ -155,9 +155,9 @@ Swagger lists every erp-api route with what it expects, what it answers and whic
 To try a route that needs you to be signed in:
 
 1. Open <http://localhost:8088/api/v1/docs>.
-2. Find **`POST /api/v1/auth/login`**, click **Try it out**, enter the staff email and the password you set in step 5, and click **Execute**:
+2. Find **`POST /api/v1/auth/login`**, click **Try it out**, enter `demo@gmail.com` and the password you set in step 5, and click **Execute**:
    ```json
-   { "email": "<a staff e-mail>", "password": "<your own password>" }
+   { "email": "demo@gmail.com", "password": "<your own password>" }
    ```
 3. Copy the `accessToken` value from the response.
 4. Click **Authorize** (top right), paste the token, and click **Authorize** again.
@@ -198,5 +198,5 @@ Each app has its own `README.md`, and every module and feature folder has a READ
 ## 10. Known issues
 
 - **`erp-web`'s `corepack yarn check` stops at the dependency audit.** `check:audit` reports high-severity advisories in third-party packages: `next` 16.3.6 (fixed in 16.3.8), `sharp` (pulled in by `next`), `@modelcontextprotocol/sdk` (inside the `shadcn` tool) and `braces` (inside `micromatch`). Everything before the audit must pass; the audit failure itself is known and not caused by your change. Do not upgrade these packages in an unrelated pull request.
-- **A Perfex page can still change staff permissions behind the Roles screen.** `hr_profile/add_edit_member` (the HR module's member form) writes a staff member's permissions directly, so the change has no audit row and Node keeps the old permissions until that person signs in again. It does not matter on a laptop; it must be closed with an Nginx refusal before this configuration is used on the client's server.
+- **A Perfex page can still change staff permissions behind the Roles screen.** `hr_profile/add_edit_member` (the HR module's member form) writes a staff member's permissions directly, so the change has no audit row and Node keeps the old permissions until that person signs in again. It does not matter on a laptop; it must be closed with an Nginx refusal before this configuration is used on the live (production) server.
 - **Two local stacks on one machine share a database.** Every checkout's stack uses the Compose project name `erp-local`, port 8088 and the same database volume. If you ran the stack before from another folder, the new checkout's generated passwords will not match the old database and setup stops with "Could not query legacy-db". Either stop the other stack and run `node setup.mjs --fresh` in `erp-infra/legacy-local` (it re-imports the dump), or copy the old checkout's `erp-infra/legacy-local/.env` into the new one.
