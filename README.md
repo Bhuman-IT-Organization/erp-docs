@@ -81,7 +81,7 @@ cd erp-api && corepack yarn install && corepack yarn check
 cd ../erp-web && corepack yarn install && corepack yarn check
 ```
 
-Both must be green before Docker, with one known exception: `erp-web`'s dependency audit (see [Known issues](#9-known-issues)). `erp-infra`, `erp-legacy` and `erp-docs` have no packages.
+Both must be green before Docker, with one known exception: `erp-web`'s dependency audit (see [Known issues](#10-known-issues)). `erp-infra`, `erp-legacy` and `erp-docs` have no packages.
 
 `yarn check` runs typecheck, lint, formatting, the architecture and dependency checks, the tests, the build (web) and a dependency audit. The audit needs the internet. `corepack yarn install` also installs the git hooks.
 
@@ -124,7 +124,54 @@ cd erp-web
 corepack yarn storybook     # http://localhost:6006
 ```
 
-## 7. What to read next
+## 7. Developer tools
+
+Four tools come with the project. Bookmark them.
+
+| Tool | What it is | How to start it | Open it at |
+|---|---|---|---|
+| **Storybook** | A catalogue of every screen part, shown on its own | `corepack yarn storybook` in `erp-web` | <http://localhost:6006> |
+| **Swagger** (API docs) | A page listing every erp-api route, where you can also try them | starts with the stack (step 5) | <http://localhost:8088/api/v1/docs> |
+| **Mailpit** | An inbox that catches every email the app sends | starts with the stack | <http://localhost:18025> |
+| **Perfex directly** | The old system without Nginx in front, for comparing screens | starts with the stack | <http://localhost:8080> |
+
+### Storybook
+
+Storybook shows each component (a button, a table, a form, a whole screen) on its own, in each of its states: loading, empty, with data, with an error. You can look at and work on the screen parts without the backend running.
+
+```sh
+cd erp-web
+corepack yarn storybook     # then open http://localhost:6006
+```
+
+- Use the menu on the left: the shared parts are under **Atoms**, **Molecules**, **Organisms** and **Templates**; the migrated screens are under **Features** (e.g. **Features › Taxes**).
+- A story lives next to its component, in a file ending in `.stories.tsx`. When you build or change a component, add or update its story.
+- `corepack yarn storybook:build` builds every story and fails if one does not render. `corepack yarn check` does not run it, so run it yourself when you changed components.
+
+### Swagger (API docs)
+
+Swagger lists every erp-api route with what it expects, what it answers and which errors it can return. It is generated from the code, so it is always up to date. You can also send real requests from it.
+
+To try a route that needs you to be signed in:
+
+1. Open <http://localhost:8088/api/v1/docs>.
+2. Find **`POST /api/v1/auth/login`**, click **Try it out**, enter the staff email and the password you set in step 5, and click **Execute**:
+   ```json
+   { "email": "<a staff e-mail>", "password": "<your own password>" }
+   ```
+3. Copy the `accessToken` value from the response.
+4. Click **Authorize** (top right), paste the token, and click **Authorize** again.
+5. Open any route, click **Try it out**, fill in the fields, and click **Execute**.
+
+- The token lasts **15 minutes**. When requests start answering 401, sign in again (steps 2 to 4).
+- The Setup routes (taxes, currencies, …) only answer for an **administrator** account; any other account gets 403.
+- The raw API description is at <http://localhost:8088/api/v1/openapi.json>.
+
+### Mailpit
+
+Every email the app sends locally lands here instead of a real inbox, so you can open it and check it. Nothing ever leaves your laptop.
+
+## 8. What to read next
 
 | Folder | What is in it |
 |---|---|
@@ -137,7 +184,7 @@ corepack yarn storybook     # http://localhost:6006
 
 Each app has its own `README.md`, and every module and feature folder has a README that explains it.
 
-## 8. House rules
+## 9. House rules
 
 - **Yarn 4 via corepack only.** `npm`, `npx`, `pnpm` and a global Yarn 1 corrupt the lockfile.
 - **History is rebase-only.** `git config --global pull.rebase true` and `git config --global merge.ff only`. Branch from `dev`, open a pull request into `dev`, merge with **Rebase and merge**; `main` only receives `dev` (and hotfixes) through a pull request. Branch names and commit types are in [CONVENTIONS.md](CONVENTIONS.md). The installed git hooks refuse a direct push to `main` and a merge commit.
@@ -148,7 +195,7 @@ Each app has its own `README.md`, and every module and feature folder has a READ
 - **A migrated screen is 1:1 with the Perfex screen it replaces**, rebuilt from its view file, with anything deliberately dropped listed in the feature's README.
 - **Never patch Perfex.** No edits to its code and no hand-run changes to its database.
 
-## 9. Known issues
+## 10. Known issues
 
 - **`erp-web`'s `corepack yarn check` stops at the dependency audit.** `check:audit` reports high-severity advisories in third-party packages: `next` 16.3.6 (fixed in 16.3.8), `sharp` (pulled in by `next`), `@modelcontextprotocol/sdk` (inside the `shadcn` tool) and `braces` (inside `micromatch`). Everything before the audit must pass; the audit failure itself is known and not caused by your change. Do not upgrade these packages in an unrelated pull request.
 - **A Perfex page can still change staff permissions behind the Roles screen.** `hr_profile/add_edit_member` (the HR module's member form) writes a staff member's permissions directly, so the change has no audit row and Node keeps the old permissions until that person signs in again. It does not matter on a laptop; it must be closed with an Nginx refusal before this configuration is used on the client's server.

@@ -126,7 +126,7 @@ export class ExampleItemController {
 }
 ```
 
-- Routes live under `/api/v1`. The OpenAPI docs are at `/api/v1/docs`.
+- Routes live under `/api/v1`. The OpenAPI (Swagger) docs are at <http://localhost:8088/api/v1/docs> (see README, Developer tools).
 - Input arrives as `unknown` and is parsed by the validator, never trusted as typed.
 - The handler never catches: errors are thrown as `AppError` and the shared filter answers them.
 
