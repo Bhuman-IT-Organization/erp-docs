@@ -128,6 +128,7 @@ corepack yarn storybook     # http://localhost:6006
 
 | Folder | What is in it |
 |---|---|
+| [`CONVENTIONS.md`](CONVENTIONS.md) | The short version: branch names, commit messages, folder structure, response and error shapes, naming |
 | [`01-onboarding/`](01-onboarding/) | `02-first-feature.md`: one login request traced through every file it touches |
 | [`02-coding-rules/`](02-coding-rules/) | The rules every pull request follows: TypeScript and lint, testing, comments, utilities, backend, frontend, database, git workflow |
 | [`03-architecture/`](03-architecture/) | How the system fits together: context, containers, backend and frontend components, the strangler-fig migration |
@@ -139,7 +140,7 @@ Each app has its own `README.md`, and every module and feature folder has a READ
 ## 8. House rules
 
 - **Yarn 4 via corepack only.** `npm`, `npx`, `pnpm` and a global Yarn 1 corrupt the lockfile.
-- **History is rebase-only.** `git config --global pull.rebase true` and `git config --global merge.ff only`. Branch from `main`, open a pull request, merge with **Rebase and merge**. The installed git hooks refuse a direct push to `main` and a merge commit.
+- **History is rebase-only.** `git config --global pull.rebase true` and `git config --global merge.ff only`. Branch from `dev`, open a pull request into `dev`, merge with **Rebase and merge**; `main` only receives `dev` (and hotfixes) through a pull request. Branch names and commit types are in [CONVENTIONS.md](CONVENTIONS.md). The installed git hooks refuse a direct push to `main` and a merge commit.
 - **Commits** are conventional: `type(scope): what and why`, one task per commit, no `Co-Authored-By` trailer. `corepack yarn check` is green in every app you touched before you open the pull request.
 - **Every module owns its tables and talks to other modules only through their `facade/`.**
 - **No hard-coded user-facing text.** Every label comes from a per-locale message file (`messages/en.json`, `messages/ar.json`); layouts use logical CSS properties (`ms-`, `me-`, `start`, `end`) so Arabic is a locale switch.

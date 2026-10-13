@@ -17,4 +17,4 @@ Every rule in this file follows the same shape:
 
 ## Rules
 
-_To be written._
+Branch names, the `dev` → `main` flow and the commit message format are in [`../CONVENTIONS.md`](../CONVENTIONS.md).
