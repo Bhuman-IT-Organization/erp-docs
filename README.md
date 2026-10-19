@@ -181,6 +181,7 @@ Every email the app sends locally lands here instead of a real inbox, so you can
 | [`03-architecture/`](03-architecture/) | How the system fits together: context, containers, backend and frontend components, the strangler-fig migration |
 | [`04-design/`](04-design/) | UI kit decisions and the usability checklist for every screen |
 | [`05-templates/`](05-templates/) | The starting point for a new backend module and a new frontend feature: copy, rename, then build |
+| [`06-team-tasks/`](06-team-tasks/) | One task card per screen to move from Perfex to Node. Start with `00-start-here.md`, then your own card |
 
 Each app has its own `README.md`, and every module and feature folder has a README that explains it.
 
