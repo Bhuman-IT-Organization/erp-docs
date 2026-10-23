@@ -11,7 +11,7 @@ Each card below moves one Perfex screen to Node. The screens don't depend on eac
 | 05 | [Lead Sources](05-lead-sources.md) | Setup > Leads > Sources | `/setup/lead-sources` | Easy | 3–4 days | |
 | 06 | [Ticket Statuses](06-ticket-statuses.md) | Setup > Support > Ticket Statuses | `/setup/ticket-statuses` | Easy+ | 4–5 days | |
 | 07 | [Lead Statuses](07-lead-statuses.md) | Setup > Leads > Statuses | `/setup/lead-statuses` | Easy+ | 4–5 days | |
-| 08 | [Predefined Replies](08-predefined-replies.md) | Setup > Support > Predefined Replies | `/setup/predefined-replies` | Medium | 5–6 days | |
+| 08 | [Predefined Replies](08-predefined-replies.md) | Setup > Support > Predefined Replies | `/setup/predefined-replies` | Medium | 4–5 days | |
 | 09 | [Spam Filters](09-spam-filters.md) | Setup > Support > Spam Filters | `/setup/spam-filters` | Medium | 5–6 days | |
 | 10 | [Departments](10-departments.md) | Setup > Support > Departments | `/setup/departments` | Hard | 6–8 days | |
 | 11 | [Custom Fields](11-custom-fields.md) | Setup > Custom Fields | `/setup/custom-fields` | Hard | 8–10 days | |
@@ -44,6 +44,6 @@ So:
 These screens are big enough to share. Each person still has their own branch:
 
 - **Spam Filters:** one person builds the Tickets kind (and the backend), the other the Leads kind on the same API. The card explains the split.
-- **Predefined Replies:** one person builds the rich-text editor and the HTML cleaning, the other the list, the form and the API.
+- **Predefined Replies:** one person builds the backend (including `reply-html.ts` and its tests), the other the screen with the formatting warning.
 - **Ticket Statuses** or **Lead Statuses:** if the UI kit has no colour picker, one person builds it as a shared component (with its story and test), the other the screen.
 - **Departments** and **Custom Fields** are **Hard**: they add write routes to modules that already exist (Departments is used by the Staff screen). Give them to the strongest people, or to a pair: one builds the backend, the other the screen.

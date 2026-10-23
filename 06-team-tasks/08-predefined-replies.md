@@ -2,7 +2,7 @@
 
 **Goal:** move Setup > Support > Predefined Replies from Perfex to Node. When you're done, the menu item opens your new Next.js screen at `/setup/predefined-replies` instead of the old Perfex page, and the old Perfex page can no longer change the data.
 
-**Level:** Medium. Allow 5–6 days, including tests. The rich-text message is the hard part.
+**Level:** Medium. Allow 4–5 days, including tests. The message (stored as HTML, edited as plain text) is the tricky part.
 
 **Read first:** [`00-start-here.md`](00-start-here.md) explains the words on this card, how one screen moves from Perfex to Node, and how to ask for help.
 
@@ -134,11 +134,53 @@ cd ~/erp/erp-api
 corepack yarn test
 ```
 
-3. **Write your backend README.** Create `erp-api/src/v1/predefined-replies/README.md` and write, in plain words: what the Perfex screen does, the rules you will keep (Step 2), the API routes you plan (for example `GET /api/v1/predefined-replies`), how you will keep the HTML message safe, and anything you plan to leave out and why.
+3. **Create your module and feature from the templates.** Every new module and feature starts as a copy of the project's templates (rule BE-22 in `erp-docs/02-coding-rules/05-backend.md`). Copy them:
 
-4. **Write your frontend README.** Create `erp-web/src/features/predefined-replies/README.md`: the list columns, the form fields, and anything you plan to leave out.
+```sh
+cd ~/erp/erp-api
+cp -R ../erp-docs/05-templates/backend-module/src/v1/example-item src/v1/predefined-replies
 
-5. Save your work and send it to GitHub, in both repositories:
+cd ~/erp/erp-web
+cp -R ../erp-docs/05-templates/frontend-feature/src/features/example-item src/features/predefined-replies
+cp -R "../erp-docs/05-templates/frontend-feature/app/(shell)/example-item" "app/(shell)/setup/predefined-replies"
+```
+
+    Then rename the template's name to yours **everywhere** in `erp-api/src/v1/predefined-replies`, `erp-web/src/features/predefined-replies` and `erp-web/app/(shell)/setup/predefined-replies`: inside the files, and in the file names too. In VS Code use **Replace in Files** (Cmd+Shift+H on Mac, Ctrl+Shift+H on Windows) with **Match Case** on, and limit it to your folders ("files to include"). Rename the files with F2. Do the **plural ones first**, because `example_item` is part of `example_items`:
+
+    | Replace | With |
+    |---|---|
+    | `example-items` | `predefined-replies` |
+    | `ExampleItems` | `PredefinedReplies` |
+    | `EXAMPLE_ITEMS` | `PREDEFINED_REPLIES` |
+    | `exampleItems` | `predefinedReplies` |
+    | `example_items` | `predefined_replies` |
+    | `Example items` | `Predefined replies` |
+    | `example items` | `predefined replies` |
+    | `example-item` | `predefined-replies` |
+    | `ExampleItem` | `PredefinedReplies` |
+    | `EXAMPLE_ITEM` | `PREDEFINED_REPLIES` |
+    | `exampleItem` | `predefinedReplies` |
+    | `example_item` | `predefined_reply` |
+    | `Example item` | `Predefined reply` |
+    | `example item` | `predefined reply` |
+
+    Your name is already plural, so the code spellings are the same for both rows; the text rows use the singular "predefined reply" where the template says one item. The two template READMEs (`erp-docs/05-templates/backend-module/README.md` and `frontend-feature/README.md`) explain every row. Don't forget the file names: some start with `ExampleItem` (for example `ExampleItemList.tsx` becomes `PredefinedRepliesList.tsx`). Then check nothing is left over. The `grep` lines look inside the files and the `find` lines look at the file names; **all of them must print nothing**:
+
+```sh
+cd ~/erp/erp-api
+grep -rniE "example[-_ ]?item" src/v1/predefined-replies
+find src/v1/predefined-replies -iname "*example*item*"
+
+cd ~/erp/erp-web
+grep -rniE "example[-_ ]?item" src/features/predefined-replies "app/(shell)/setup/predefined-replies"
+find src/features/predefined-replies "app/(shell)/setup/predefined-replies" -iname "*example*item*"
+```
+
+4. **Write your backend README.** The template gave you `erp-api/src/v1/predefined-replies/README.md`. Rewrite it in plain words for your module: what the Perfex screen does, the rules you will keep (Step 2), the API routes you plan (for example `GET /api/v1/predefined-replies`), how the message is stored as HTML and read back as plain text, and anything you plan to leave out and why.
+
+5. **Write your frontend README.** The template gave you `erp-web/src/features/predefined-replies/README.md`. Fill its sections (`Legacy screen`, `Legacy parity`, `Messages`, as its template README explains): the list columns, the form fields, and anything you plan to leave out.
+
+6. Save your work and send it to GitHub, in both repositories:
 
 ```sh
 cd ~/erp/erp-api
@@ -152,7 +194,7 @@ git commit -m "docs(predefined-replies): plan the screen"
 git push
 ```
 
-6. Open a **draft pull request** in each of the two repositories:
+7. Open a **draft pull request** in each of the two repositories:
     - go to https://github.com/Bhuman-IT-Organization/erp-api and https://github.com/Bhuman-IT-Organization/erp-web
     - click **Compare & pull request**
     - check that **base** says `dev`, not `main`
@@ -169,21 +211,25 @@ git push
     - `erp-legacy/public_html/application/controllers/admin/Tickets.php`: search for `function predefined_replies`, `function predefined_reply` and `function delete_predefined_reply`
     - `erp-legacy/public_html/application/views/admin/tickets/predefined_replies/manage.php` (the list) and `reply.php` (the add/edit page with the editor)
     - `erp-legacy/public_html/application/models/Tickets_model.php`: search for `function delete_predefined_reply`
-3. The table is `tbltickets_predefined_replies`. Its columns: `id` (a number), `name` (text, at most 191 characters) and `message` (HTML from the rich-text editor).
+3. The table is `tbltickets_predefined_replies`. Its columns: `id` (a number), `name` (text, at most 191 characters) and `message` (HTML: Perfex saves what its rich-text editor produces, and inserts it into ticket replies).
 
 **Rules your screen must keep, exactly like Perfex:**
 
 - **Admins only:** only an administrator can open the page or save anything.
 - **Delete checks nothing:** nothing else points at a predefined reply, so a delete always works.
-- **The message is HTML:** it is shown inside tickets, so it must never let a script in. Clean (sanitise) the HTML before you save it and before you show it. Ask the lead which shared helper or library to use.
+- **The message: a plain text box on our screen, HTML in the table.** Perfex edits the message in a rich-text editor. Our screen uses a plain text box instead, the same choice the Email Templates screen made (see "Rich text" in `erp-web/src/features/mail/README.md`), so no HTML ever comes in and nothing needs a cleaning library. In the backend, put two functions in their own small file, `service/reply-html.ts`, and list it under "Layers" in your README:
+-     - **Saving (text → HTML):** escape the five special characters (`&` `<` `>` `"` `'`), wrap each paragraph (separated by an empty line) in `<p>`, and turn the other line breaks into `<br>`. A typed `<script>` is then stored as harmless text (`&lt;script&gt;`), never as a tag.
+-     - **Reading (HTML → text):** turn the stored HTML back into plain text for the text box, and return a flag (for example `hasOtherFormatting`) when an old Perfex reply has bold text, lists or links that editing would drop, so the screen can warn about it.
+-     - Write in your README that our screen uses a plain text box instead of Perfex's rich editor, and why.
 - **"Save as predefined reply" stays on Perfex:** when staff reply to a ticket, they can save the reply as a predefined reply. That stays on Perfex. Don't block it, and write it in your README.
 
 ## Step 3: Backend (`erp-api`)
 
-1. Read `erp-api/src/v1/cost-centers` to see how the parts fit together: `controller`, `service`, `repository`, `facade`, `dto`, `model`, `events`. Read its README first, and the rules in `erp-docs/02-coding-rules/05-backend.md`. Cost Centers uses things your screen doesn't need. **Don't copy its files.** Write your own in `erp-api/src/v1/predefined-replies`. The module-shape test and the architecture lint tell you if a part is missing or in the wrong place.
+1. Your module `erp-api/src/v1/predefined-replies` was created from the template in Step 1. Now read `erp-api/src/v1/cost-centers` to see what a **finished** module looks like: `controller`, `service`, `repository`, `facade`, `dto`, `model`, `events`. Read its README first, and the rules in `erp-docs/02-coding-rules/05-backend.md`. Cost Centers uses things your screen doesn't need. **Don't copy Cost Centers' files**: change your own copied skeleton step by step. The module-shape test and the architecture lint tell you if a part is missing or in the wrong place.
+    - The template keeps its rows **in memory**. Replace that with your real table: your repository reads and writes it through Prisma (Cost Centers' repository shows how), and add a repository integration test (`predefined-replies.repository.int.spec.ts`), which every repository that reads the database needs (rule BE-21).
 2. Register your module in `erp-api/src/v1/v1.module.ts`: add one import line and one line in the `imports` list.
 3. Add your page permissions to `erp-api/packages/contracts/src/route-gates.ts`: `/setup/predefined-replies`, `/setup/predefined-replies/new` and `/setup/predefined-replies/:id`, all `ADMIN_GATE`.
-4. Write tests while you build, not at the end. Look at `erp-api/src/v1/cost-centers/__tests__` to see what kinds of tests a module has. Include a test that a `<script>` in the message never gets saved.
+4. Write tests while you build, not at the end. Look at `erp-api/src/v1/cost-centers/__tests__` to see what kinds of tests a module has. Include tests for `reply-html.ts`: a typed `<script>` is saved escaped (as text, never as a tag); paragraphs and line breaks survive a save and a read; an old reply with bold text, a list or a link sets the formatting flag.
 5. Run the backend tests:
 
 ```sh
@@ -234,7 +280,7 @@ cd ~/erp/erp-web
 corepack yarn storybook
 ```
 
-Open http://localhost:6006. On the left you see every shared component, grouped as **atoms**, **molecules**, **organisms** and **templates**. Click through them and read their **Docs** tab. **Look for a rich-text editor** before anything else. For a screen like yours, you will almost certainly use:
+Open http://localhost:6006. On the left you see every shared component, grouped as **atoms**, **molecules**, **organisms** and **templates**. Click through them and read their **Docs** tab. For a screen like yours, you will almost certainly use:
 
 - `ListPageTemplate`: the whole list page (title, table, search, add button)
 - `SchemaForm`: the add and edit form
@@ -242,10 +288,10 @@ Open http://localhost:6006. On the left you see every shared component, grouped 
 - `PageSkeleton`: the grey loading placeholder
 - `InlineError`: an error message under a field
 
-**Rule:** if a component exists, use it. Never build your own table, form, button or dialog. If you really need something that doesn't exist (for example a rich-text editor), **ask the lead first**. A new shared component goes in `erp-web/src/components`, with its own story and test, so the next person can reuse it. See also `erp-docs/04-design/01-ui-kit-decisions.md`.
+**Rule:** if a component exists, use it. Never build your own table, form, button or dialog. If you really need something that doesn't exist, **ask the lead first**. A new shared component goes in `erp-web/src/components`, with its own story and test, so the next person can reuse it. See also `erp-docs/04-design/01-ui-kit-decisions.md`.
 
-3. Read `erp-web/src/features/cost-centers` to see how a screen is built: `api`, `components`, `hooks`, `pages`, `schemas`, `messages`. Read the rules in `erp-docs/02-coding-rules/06-frontend.md`. **Don't copy its files.** Write your own in `erp-web/src/features/predefined-replies`.
-4. Create the pages in `erp-web/app/(shell)/setup/predefined-replies/`:
+3. Your feature `erp-web/src/features/predefined-replies` was created from the template in Step 1. Read `erp-web/src/features/cost-centers` to see what a **finished** screen looks like: `api`, `components`, `hooks`, `pages`, `schemas`, `messages`. Read the rules in `erp-docs/02-coding-rules/06-frontend.md`. **Don't copy Cost Centers' files**: turn your copied skeleton into your screen.
+4. Your pages, copied in Step 1, are in `erp-web/app/(shell)/setup/predefined-replies/`:
     - `page.tsx`: the list
     - `new/page.tsx`: the add form
     - `[id]/page.tsx`: the edit form
@@ -259,7 +305,7 @@ Open http://localhost:6006. On the left you see every shared component, grouped 
     - change `href` to `'/setup/predefined-replies'`
     - replace the `adminOnly` / `permission` line with `...navGateOf('/setup/predefined-replies'),`
     - delete the `legacy: true,` line
-8. Write a test and a Storybook story for your list and your form (files ending in `.test.tsx` and `.stories.tsx`). Check that the editor works in Arabic (right to left).
+8. Write a test and a Storybook story for your list and your form (files ending in `.test.tsx` and `.stories.tsx`). Make a story that shows the warning for an old reply that has formatting.
 9. Run the frontend tests, then commit:
 
 ```sh
@@ -361,9 +407,9 @@ In `erp-web`, `corepack yarn check` stops at the known dependency audit (see Ste
 ## References to read (not to copy)
 
 - **How the parts fit:** Cost Centers (`erp-api/src/v1/cost-centers`, `erp-web/src/features/cost-centers`).
-- **A screen that edits HTML:** Email Templates (`erp-api/src/v1/mail`, `erp-web/src/features/mail`).
+- **The same plain-text choice:** Email Templates (`erp-web/src/features/mail/README.md`, "Rich text").
 - **Every part explained, file by file:** `erp-docs/01-onboarding/02-first-feature.md`, with `erp-api/src/v1/auth` and `erp-web/src/features/auth` open beside it.
-- **Empty skeletons of a module and a feature:** `erp-docs/05-templates/`.
+- **Where every module and feature starts:** `erp-docs/05-templates/` (rule BE-22); its two READMEs explain every name to rename.
 - **Naming, branches, commits and response shapes:** `erp-docs/CONVENTIONS.md`.
 
 ## Shared files you edit (add only your own lines, don't change other people's)
@@ -379,8 +425,9 @@ In `erp-web`, `corepack yarn check` stops at the known dependency audit (see Ste
 
 ## Done means
 
-- Signed in as an admin, Setup > Support > Predefined Replies opens your new page. Add, edit and delete all work, and bold text, lists and links are kept.
-- A message with `<script>` in it never runs and is never saved.
+- Signed in as an admin, Setup > Support > Predefined Replies opens your new page. Add, edit and delete all work, and paragraphs and line breaks are kept.
+- A typed `<script>` is saved and shown as plain text, and never runs.
+- An old Perfex reply with bold text, a list or a link shows the formatting warning.
 - A reply you save in Node shows correctly when you insert it into a ticket reply on Perfex.
 - "Save as predefined reply" on a Perfex ticket still works.
 - Signed in as a non-admin, you can't open the page.
