@@ -135,11 +135,46 @@ cd ~/erp/erp-api
 corepack yarn test
 ```
 
-3. **Update the backend README.** `erp-api/src/v1/custom-fields/README.md` says the module is read-only and that Perfex is the only writer. After your task that is no longer true. Rewrite those parts in plain words: what the module now writes, the rules you will keep (Step 2), the new API routes you plan, which Perfex screens still write the same table (every Perfex form with custom fields writes values; the warehouse module can create fields), and anything you plan to leave out and why.
+3. **Create your feature from the templates.** Every new module and feature starts as a copy of the project's templates (rule BE-22 in `erp-docs/02-coding-rules/05-backend.md`). Copy them:
 
-4. **Write your frontend README.** Create `erp-web/src/features/custom-fields/README.md`: the list columns, every form field and when it shows (by type and by "belongs to"), the Active switch, and anything you plan to leave out.
+```sh
+cd ~/erp/erp-web
+cp -R ../erp-docs/05-templates/frontend-feature/src/features/example-item src/features/custom-fields
+cp -R "../erp-docs/05-templates/frontend-feature/app/(shell)/example-item" "app/(shell)/setup/custom-fields"
+```
 
-5. Save your work and send it to GitHub, in both repositories:
+    Then rename the template's name to yours **everywhere** in `erp-web/src/features/custom-fields` and `erp-web/app/(shell)/setup/custom-fields`: inside the files, and in the file names too. In VS Code use **Replace in Files** (Cmd+Shift+H on Mac, Ctrl+Shift+H on Windows) with **Match Case** on, and limit it to your folders ("files to include"). Rename the files with F2. Do the **plural ones first**, because `example_item` is part of `example_items`:
+
+    | Replace | With |
+    |---|---|
+    | `example-items` | `custom-fields` |
+    | `ExampleItems` | `CustomFields` |
+    | `EXAMPLE_ITEMS` | `CUSTOM_FIELDS` |
+    | `exampleItems` | `customFields` |
+    | `example_items` | `custom_fields` |
+    | `Example items` | `Custom fields` |
+    | `example items` | `custom fields` |
+    | `example-item` | `custom-fields` |
+    | `ExampleItem` | `CustomFields` |
+    | `EXAMPLE_ITEM` | `CUSTOM_FIELDS` |
+    | `exampleItem` | `customFields` |
+    | `example_item` | `custom_field` |
+    | `Example item` | `Custom field` |
+    | `example item` | `custom field` |
+
+    Your name is already plural, so the code spellings are the same for both rows; the text rows use the singular "custom field" where the template says one item. The two template READMEs (`erp-docs/05-templates/backend-module/README.md` and `frontend-feature/README.md`) explain every row. Don't forget the file names: some start with `ExampleItem` (for example `ExampleItemList.tsx` becomes `CustomFieldsList.tsx`). Then check nothing is left over. The `grep` lines look inside the files and the `find` lines look at the file names; **all of them must print nothing**:
+
+```sh
+cd ~/erp/erp-web
+grep -rniE "example[-_ ]?item" src/features/custom-fields "app/(shell)/setup/custom-fields"
+find src/features/custom-fields "app/(shell)/setup/custom-fields" -iname "*example*item*"
+```
+
+4. **Update the backend README.** `erp-api/src/v1/custom-fields/README.md` says the module is read-only and that Perfex is the only writer. After your task that is no longer true. Rewrite those parts in plain words: what the module now writes, the rules you will keep (Step 2), the new API routes you plan, which Perfex screens still write the same table (every Perfex form with custom fields writes values; the warehouse module can create fields), and anything you plan to leave out and why.
+
+5. **Write your frontend README.** The template gave you `erp-web/src/features/custom-fields/README.md`. Fill its sections (`Legacy screen`, `Legacy parity`, `Messages`, as its template README explains): the list columns, every form field and when it shows (by type and by "belongs to"), the Active switch, and anything you plan to leave out.
+
+6. Save your work and send it to GitHub, in both repositories:
 
 ```sh
 cd ~/erp/erp-api
@@ -153,7 +188,7 @@ git commit -m "docs(custom-fields): plan the screen"
 git push
 ```
 
-6. Open a **draft pull request** in each of the two repositories:
+7. Open a **draft pull request** in each of the two repositories:
     - go to https://github.com/Bhuman-IT-Organization/erp-api and https://github.com/Bhuman-IT-Organization/erp-web
     - click **Compare & pull request**
     - check that **base** says `dev`, not `main`
@@ -253,8 +288,8 @@ Open http://localhost:6006. On the left you see every shared component, grouped 
 
 **Rule:** if a component exists, use it. Never build your own table, form, button or dialog. If you really need something that doesn't exist, **ask the lead first**. A new shared component goes in `erp-web/src/components`, with its own story and test, so the next person can reuse it. See also `erp-docs/04-design/01-ui-kit-decisions.md`.
 
-3. Read `erp-web/src/features/cost-centers` to see how a screen is built: `api`, `components`, `hooks`, `pages`, `schemas`, `messages`. Read the rules in `erp-docs/02-coding-rules/06-frontend.md`. **Don't copy its files.** Write your own in `erp-web/src/features/custom-fields`.
-4. Create the pages in `erp-web/app/(shell)/setup/custom-fields/`:
+3. Your feature `erp-web/src/features/custom-fields` was created from the template in Step 1. Read `erp-web/src/features/cost-centers` to see what a **finished** screen looks like: `api`, `components`, `hooks`, `pages`, `schemas`, `messages`. Read the rules in `erp-docs/02-coding-rules/06-frontend.md`. **Don't copy Cost Centers' files**: turn your copied skeleton into your screen.
+4. Your pages, copied in Step 1, are in `erp-web/app/(shell)/setup/custom-fields/`:
     - `page.tsx`: the list
     - `new/page.tsx`: the add form
     - `[id]/page.tsx`: the edit form
@@ -370,7 +405,7 @@ In `erp-web`, `corepack yarn check` stops at the known dependency audit (see Ste
 - **The module you extend:** `erp-api/src/v1/custom-fields` (its README first).
 - **How write routes, rules and tests fit together:** Cost Centers (`erp-api/src/v1/cost-centers`, `erp-web/src/features/cost-centers`).
 - **Every part explained, file by file:** `erp-docs/01-onboarding/02-first-feature.md`, with `erp-api/src/v1/auth` and `erp-web/src/features/auth` open beside it.
-- **Empty skeletons of a module and a feature:** `erp-docs/05-templates/`.
+- **Where every module and feature starts:** `erp-docs/05-templates/` (rule BE-22); its two READMEs explain every name to rename.
 - **Naming, branches, commits and response shapes:** `erp-docs/CONVENTIONS.md`.
 
 ## Shared files you edit (add only your own lines, don't change other people's)

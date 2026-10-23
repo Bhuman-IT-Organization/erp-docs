@@ -136,11 +136,53 @@ cd ~/erp/erp-api
 corepack yarn test
 ```
 
-3. **Write your backend README.** Create `erp-api/src/v1/spam-filters/README.md` and write, in plain words: what the Perfex screen does, the rules you will keep (Step 2), the API routes you plan (for example `GET /api/v1/spam-filters?kind=tickets&type=sender`), and anything you plan to leave out and why.
+3. **Create your module and feature from the templates.** Every new module and feature starts as a copy of the project's templates (rule BE-22 in `erp-docs/02-coding-rules/05-backend.md`). Copy them:
 
-4. **Write your frontend README.** Create `erp-web/src/features/spam-filters/README.md`: the two pages, the three tabs on each, the form field, and anything you plan to leave out.
+```sh
+cd ~/erp/erp-api
+cp -R ../erp-docs/05-templates/backend-module/src/v1/example-item src/v1/spam-filters
 
-5. Save your work and send it to GitHub, in both repositories:
+cd ~/erp/erp-web
+cp -R ../erp-docs/05-templates/frontend-feature/src/features/example-item src/features/spam-filters
+cp -R "../erp-docs/05-templates/frontend-feature/app/(shell)/example-item" "app/(shell)/setup/spam-filters"
+```
+
+    Then rename the template's name to yours **everywhere** in `erp-api/src/v1/spam-filters`, `erp-web/src/features/spam-filters` and `erp-web/app/(shell)/setup/spam-filters`: inside the files, and in the file names too. In VS Code use **Replace in Files** (Cmd+Shift+H on Mac, Ctrl+Shift+H on Windows) with **Match Case** on, and limit it to your folders ("files to include"). Rename the files with F2. Do the **plural ones first**, because `example_item` is part of `example_items`:
+
+    | Replace | With |
+    |---|---|
+    | `example-items` | `spam-filters` |
+    | `ExampleItems` | `SpamFilters` |
+    | `EXAMPLE_ITEMS` | `SPAM_FILTERS` |
+    | `exampleItems` | `spamFilters` |
+    | `example_items` | `spam_filters` |
+    | `Example items` | `Spam filters` |
+    | `example items` | `spam filters` |
+    | `example-item` | `spam-filters` |
+    | `ExampleItem` | `SpamFilters` |
+    | `EXAMPLE_ITEM` | `SPAM_FILTERS` |
+    | `exampleItem` | `spamFilters` |
+    | `example_item` | `spam_filter` |
+    | `Example item` | `Spam filter` |
+    | `example item` | `spam filter` |
+
+    Your name is already plural, so the code spellings are the same for both rows; the text rows use the singular "spam filter" where the template says one item. The two template READMEs (`erp-docs/05-templates/backend-module/README.md` and `frontend-feature/README.md`) explain every row. Don't forget the file names: some start with `ExampleItem` (for example `ExampleItemList.tsx` becomes `SpamFiltersList.tsx`). Then check nothing is left over. The `grep` lines look inside the files and the `find` lines look at the file names; **all of them must print nothing**:
+
+```sh
+cd ~/erp/erp-api
+grep -rniE "example[-_ ]?item" src/v1/spam-filters
+find src/v1/spam-filters -iname "*example*item*"
+
+cd ~/erp/erp-web
+grep -rniE "example[-_ ]?item" src/features/spam-filters "app/(shell)/setup/spam-filters"
+find src/features/spam-filters "app/(shell)/setup/spam-filters" -iname "*example*item*"
+```
+
+4. **Write your backend README.** The template gave you `erp-api/src/v1/spam-filters/README.md`. Rewrite it in plain words for your module: what the Perfex screen does, the rules you will keep (Step 2), the API routes you plan (for example `GET /api/v1/spam-filters?kind=tickets&type=sender`), and anything you plan to leave out and why.
+
+5. **Write your frontend README.** The template gave you `erp-web/src/features/spam-filters/README.md`. Fill its sections (`Legacy screen`, `Legacy parity`, `Messages`, as its template README explains): the two pages, the three tabs on each, the form field, and anything you plan to leave out.
+
+6. Save your work and send it to GitHub, in both repositories:
 
 ```sh
 cd ~/erp/erp-api
@@ -154,7 +196,7 @@ git commit -m "docs(spam-filters): plan the screen"
 git push
 ```
 
-6. Open a **draft pull request** in each of the two repositories:
+7. Open a **draft pull request** in each of the two repositories:
     - go to https://github.com/Bhuman-IT-Organization/erp-api and https://github.com/Bhuman-IT-Organization/erp-web
     - click **Compare & pull request**
     - check that **base** says `dev`, not `main`
@@ -186,7 +228,8 @@ git push
 
 ## Step 3: Backend (`erp-api`)
 
-1. Read `erp-api/src/v1/cost-centers` to see how the parts fit together: `controller`, `service`, `repository`, `facade`, `dto`, `model`, `events`. Read its README first, and the rules in `erp-docs/02-coding-rules/05-backend.md`. Cost Centers uses things your screen doesn't need. **Don't copy its files.** Write your own in `erp-api/src/v1/spam-filters`. The module-shape test and the architecture lint tell you if a part is missing or in the wrong place.
+1. Your module `erp-api/src/v1/spam-filters` was created from the template in Step 1. Now read `erp-api/src/v1/cost-centers` to see what a **finished** module looks like: `controller`, `service`, `repository`, `facade`, `dto`, `model`, `events`. Read its README first, and the rules in `erp-docs/02-coding-rules/05-backend.md`. Cost Centers uses things your screen doesn't need. **Don't copy Cost Centers' files**: change your own copied skeleton step by step. The module-shape test and the architecture lint tell you if a part is missing or in the wrong place.
+    - The template keeps its rows **in memory**. Replace that with your real table: your repository reads and writes it through Prisma (Cost Centers' repository shows how), and add a repository integration test (`spam-filters.repository.int.spec.ts`), which every repository that reads the database needs (rule BE-21).
 2. Register your module in `erp-api/src/v1/v1.module.ts`: add one import line and one line in the `imports` list.
 3. Add your page permissions to `erp-api/packages/contracts/src/route-gates.ts`: `/setup/spam-filters`, `/setup/spam-filters/new`, `/setup/spam-filters/:id` and `/setup/spam-filters/leads`, all `ADMIN_GATE`.
 4. Write tests while you build, not at the end. Look at `erp-api/src/v1/cost-centers/__tests__` to see what kinds of tests a module has. Include a test that an unknown kind or type is refused.
@@ -251,10 +294,10 @@ Open http://localhost:6006. On the left you see every shared component, grouped 
 
 **Rule:** if a component exists, use it. Never build your own table, form, button or dialog. If you really need something that doesn't exist, **ask the lead first**. A new shared component goes in `erp-web/src/components`, with its own story and test, so the next person can reuse it. See also `erp-docs/04-design/01-ui-kit-decisions.md`.
 
-3. Read `erp-web/src/features/cost-centers` to see how a screen is built: `api`, `components`, `hooks`, `pages`, `schemas`, `messages`. Read the rules in `erp-docs/02-coding-rules/06-frontend.md`. **Don't copy its files.** Write your own in `erp-web/src/features/spam-filters`. Build the list once and use it for both kinds; don't write it twice.
-4. Create the pages in `erp-web/app/(shell)/setup/spam-filters/`:
+3. Your feature `erp-web/src/features/spam-filters` was created from the template in Step 1. Read `erp-web/src/features/cost-centers` to see what a **finished** screen looks like: `api`, `components`, `hooks`, `pages`, `schemas`, `messages`. Read the rules in `erp-docs/02-coding-rules/06-frontend.md`. **Don't copy Cost Centers' files**: turn your copied skeleton into your screen. Build the list once and use it for both kinds; don't write it twice.
+4. Your pages, copied in Step 1, are in `erp-web/app/(shell)/setup/spam-filters/`:
     - `page.tsx`: the ticket filters
-    - `leads/page.tsx`: the lead filters
+    - `leads/page.tsx`: the lead filters (not in the template: add this page yourself)
     - `new/page.tsx`: the add form
     - `[id]/page.tsx`: the edit form
     - `error.tsx`: what shows if something breaks
@@ -371,7 +414,7 @@ In `erp-web`, `corepack yarn check` stops at the known dependency audit (see Ste
 
 - **How the parts fit:** Cost Centers (`erp-api/src/v1/cost-centers`, `erp-web/src/features/cost-centers`).
 - **Every part explained, file by file:** `erp-docs/01-onboarding/02-first-feature.md`, with `erp-api/src/v1/auth` and `erp-web/src/features/auth` open beside it.
-- **Empty skeletons of a module and a feature:** `erp-docs/05-templates/`.
+- **Where every module and feature starts:** `erp-docs/05-templates/` (rule BE-22); its two READMEs explain every name to rename.
 - **Naming, branches, commits and response shapes:** `erp-docs/CONVENTIONS.md`.
 
 ## Shared files you edit (add only your own lines, don't change other people's)
