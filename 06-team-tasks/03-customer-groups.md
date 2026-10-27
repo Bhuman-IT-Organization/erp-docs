@@ -117,15 +117,15 @@ Check which branch you are on with `git branch`. The one with `*` is the branch 
 
 ## Step 1: Docs first (before any code)
 
-1. **Claim the tables.** This screen writes **two** tables: `tblcustomers_groups` (the groups) and `tblcustomer_groups` (which customer is in which group; note the missing "s"). Open `erp-api/prisma/ownership.json` in VS Code. Press Ctrl+F (Cmd+F on Mac) and search for each of `"tblcustomers_groups"` and `"tblcustomer_groups"`, one by one. In each block:
+1. **Claim the table.** Open `erp-api/prisma/ownership.json` in VS Code. Press Ctrl+F (Cmd+F on Mac) and search for `"tblcustomers_groups"`. In that block:
     - change `"owner": "perfex-core"` to `"owner": "node"`
-    - in `"note"`, write one sentence, for example: "Written by v1/customer-groups; Perfex's delete is closed at Nginx; the quick add on the customer profile stays on Perfex."
+    - in `"note"`, write one sentence, for example: "Written by v1/customer-groups; Perfex's delete is closed at Nginx; the quick add on the customer profile stays on Perfex. tblcustomer_groups (the links) stays Perfex's and is only read."
 
-    Without this, the API refuses to save anything to these tables. The rule is DB-02 in `erp-docs/02-coding-rules/07-database.md`.
+    Without this, the API refuses to save anything to this table. The rule is DB-02 in `erp-docs/02-coding-rules/07-database.md`.
 
-2. **Update the test that lists the Node-owned tables.** A test pins the exact list, so after step 1 it fails until you add your two tables to it. Open `erp-api/src/shared/db/__tests__/ownership-guard.spec.ts`, press Ctrl+F and search for `names exactly the node-owned tables`. Below it:
-    - in the list after `expect(nodeOwned).toEqual([`, add `'tblcustomers_groups'` and `'tblcustomer_groups'`. The list is in **alphabetical order**, so put each one in the right place, not at the end
-    - in the comment lines above the list, add one line in the same style, for example: `// Customer Groups claimed tblcustomers_groups, tblcustomer_groups for v1/customer-groups.`
+2. **Update the test that lists the Node-owned tables.** A test pins the exact list, so after step 1 it fails until you add your table to it. Open `erp-api/src/shared/db/__tests__/ownership-guard.spec.ts`, press Ctrl+F and search for `names exactly the node-owned tables`. Below it:
+    - in the list after `expect(nodeOwned).toEqual([`, add `'tblcustomers_groups'`. The list is in **alphabetical order**, so put it in the right place, not at the end
+    - in the comment lines above the list, add one line in the same style, for example: `// Customer Groups claimed tblcustomers_groups for v1/customer-groups.`
 
     Then run the tests and check this one passes:
 
@@ -218,7 +218,7 @@ git push
 **Rules your screen must keep, exactly like Perfex:**
 
 - **Admins only:** only an administrator can open the page or save anything.
-- **Deleting a group also removes its links:** when a group is deleted, Perfex also deletes its rows in `tblcustomer_groups`, so no customer points at a group that no longer exists. Do both in one database transaction.
+- **No delete while customers are in the group:** count the customers in the group (`tblcustomer_groups`, read only), and while there is at least one, refuse the delete with 409 `ERP-CUSTOMERGROUPS-0001` ("The customer group is still in use"). Add that code to the error catalog. Perfex itself deletes the group and its customer links, but Node must not write `tblcustomer_groups`: Perfex keeps writing it from the customer screens (customer create `Clients_model.php:188`, profile save `Clients_model.php:296`, customer delete `Clients_model.php:984`, bulk actions `Clients.php:892`). Write this choice in your README.
 - **The quick add stays on Perfex:** staff can add a group straight from a customer's profile (`/admin/clients/group`), when the setting `staff_members_create_inline_customer_groups` allows it. That stays on Perfex. Don't block it, and write it in your README.
 
 ## Step 3: Backend (`erp-api`)
@@ -227,7 +227,7 @@ git push
     - The template keeps its rows **in memory**. Replace that with your real table: your repository reads and writes it through Prisma (Cost Centers' repository shows how), and add a repository integration test (`customer-groups.repository.int.spec.ts`), which every repository that reads the database needs (rule BE-21).
 2. Register your module in `erp-api/src/v1/v1.module.ts`: add one import line and one line in the `imports` list.
 3. Add your page permissions to `erp-api/packages/contracts/src/route-gates.ts`: `/setup/customer-groups`, `/setup/customer-groups/new` and `/setup/customer-groups/:id`, all `ADMIN_GATE`.
-4. Write tests while you build, not at the end. Look at `erp-api/src/v1/cost-centers/__tests__` to see what kinds of tests a module has. Include a test that deleting a group also removes its customer links.
+4. Write tests while you build, not at the end. Look at `erp-api/src/v1/cost-centers/__tests__` to see what kinds of tests a module has. Include a test that a group with a customer is refused with 409 and nothing is deleted, and that an empty group is deleted (204). Do **not** claim `tblcustomer_groups` (which customer is in which group, note the missing "s"): it stays `perfex-core`, and you only read it.
 5. Run the backend tests:
 
 ```sh
@@ -423,7 +423,7 @@ In `erp-web`, `corepack yarn check` stops at the known dependency audit (see Ste
 ## Done means
 
 - Signed in as an admin, Setup > Customers > Groups opens your new page. Add, edit and delete all work.
-- Deleting a group also removes it from every customer that had it.
+- Deleting a group that still has customers is refused with a clear message, and nothing is deleted; an empty group is deleted.
 - The quick add of a group on Perfex's customer profile still works.
 - Signed in as a non-admin, you can't open the page.
 - Opening http://localhost:8088/admin/clients/groups takes you to your new page.
